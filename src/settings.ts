@@ -16,8 +16,8 @@ import {
 	TextAreaComponent, 
 	SearchComponent, 
 	TextComponent, 
-	requestUrl, 
-	SliderComponent 
+	SliderComponent,
+	requestUrl
 } from "obsidian";
 
 export class SampleSettingTab extends PluginSettingTab {
