@@ -1,14 +1,24 @@
-import { PluginSettingTab, Setting, ButtonComponent, App, TextAreaComponent, SearchComponent, TextComponent, requestUrl, SliderComponent } from "obsidian";
-import { LogWindow } from "./log";
-import KSyncPlugin from "./main";
+import { LogWindow } from "@ksync/log";
+import KSyncPlugin from "@ksync/main";
+import possiblyHost from "@ksync/util/possiblyHost";
+import { Logger } from "@ksync/util/Logger";
+import { humanFileSize } from "@ksync/util/FileUtil";
+import { LoginModal } from "@ksync/modals/login";
+import { DevicesModal } from "@ksync/modals/devices";
+import { VaultsModal } from "@ksync/modals/vaults";
+import { Account } from "@ksync/services/account";
 import { inspect } from "util";
-import possiblyHost from "./util/possiblyHost";
-import { LoginModal } from "./modals/login";
-import { Logger } from "./util/Logger";
-import { DevicesModal } from "./modals/devices";
-import { Account } from "./services/account";
-import { VaultsModal } from "./modals/vaults";
-import { humanFileSize } from "./util/FileUtil";
+import { 
+	PluginSettingTab, 
+	Setting,
+	ButtonComponent, 
+	App, 
+	TextAreaComponent, 
+	SearchComponent, 
+	TextComponent, 
+	requestUrl, 
+	SliderComponent 
+} from "obsidian";
 
 export class SampleSettingTab extends PluginSettingTab {
 	plugin: KSyncPlugin;
@@ -29,57 +39,44 @@ export class SampleSettingTab extends PluginSettingTab {
 
 		container.empty();
 
-		if(!this.plugin.api.status) {
+		if (!this.plugin.api.status) {
 			new Setting(container)
-			.setName("Сервер недоступен, пожалуйста, повторите попытку.")
-			.addButton(button => button
-				.setButtonText("Переподключиться")
-				.onClick(async (_) => {
-					this.plugin.api.CheckApi();
-				})
-			)
+				.setName("Сервер недоступен, пожалуйста, повторите попытку.")
+				.addButton(button => button
+					.setButtonText("Переподключиться")
+					.onClick(async (_) => {
+						this.plugin.api.CheckApi();
+					})
+				);
 		}
 
 		new Setting(container)
 			.setHeading()
 			.setName("Взаимодействие с аккаунтом и хранилищем");
 
-		//Проверка есть ли аккаунт и доступно ли API
-		if(this.plugin.settings.token === "" || !this.plugin.api.status) {
+		// Проверка есть ли аккаунт и доступно ли API
+		if (this.plugin.settings.token === "" || !this.plugin.api.status) {
 			new Setting(container)
-			.setName(`Вы ещё не зашли в собственный аккаунт.`)
-			.addButton(button => button
-				.setButtonText("Войти")
-				.onClick(async (_) => {
-					new LoginModal(this.app, this.plugin).open()
-					this.logger.info("Используем официальный сервер.")
-				})
-			)
+				.setName(`Вы ещё не зашли в собственный аккаунт.`)
+				.addButton(button => button
+					.setButtonText("Войти")
+					.onClick(async (_) => {
+						new LoginModal(this.app, this.plugin).open()
+						this.logger.info("Используем официальный сервер.")
+					})
+				);
 		} else {
-
 			new Setting(container)
-			.setName(`Аккаунт: ${this.user.data.email}`)
-			.setDesc(`Подписка: ${this.user.data.subscription}`)
-			.addButton(button => button
-				.setButtonText("Выйти")
-				.onClick(async (_) => {
-					this.plugin.settings.token = ""
-					this.plugin.saveSettings()
-					this.display()
-				})
-			)
-		
-			// new Setting(container)
-			// 	.setName("Выберите хранилище")
-			// 	.addDropdown(dropdown => dropdown.addOptions({
-			// 	"1": this.app.vault.getName(),
-			// 	"2": "EgorAbramov"
-			// 	})
-			// 	.setDisabled(this.plugin.settings.vaultid === 0)
-			// 	.onChange(async (callback) => {
-
-			// 	})
-			// )
+				.setName(`Аккаунт: ${this.user.data.email}`)
+				.setDesc(`Подписка: ${this.user.data.subscription}`)
+				.addButton(button => button
+					.setButtonText("Выйти")
+					.onClick(async (_) => {
+						this.plugin.settings.token = ""
+						this.plugin.saveSettings()
+						this.display()
+					})
+				);
 
 			new Setting(container)
 				.setName(`Хранилища (Выбрано: ${this.user.data.vaults.find(vault => vault.id === this.plugin.settings.vaultid)?.name})`)
@@ -91,33 +88,37 @@ export class SampleSettingTab extends PluginSettingTab {
 					})
 				)
 			
-				// TODO: Добавить в бета-тестирование только после того как будет реализован API
-			/** new Setting(container)
-				.setName("Устройства")
-				.setDesc("Устройства привязанные к аккаунту")
-				.addButton(button => button
-					.setButtonText("Просмотреть")
-					.onClick(async () => {
-						new DevicesModal(this.app, this.plugin).open()
-					})
-				)
+			/**
+   			 * TODO: Добавить в бета-тестирование только после того как будет реализован API
+			 *
+	         *   new Setting(container)
+			 *       .setName("Устройства")
+			 *       .setDesc("Устройства привязанные к аккаунту")
+			 *       .addButton(button => button
+			 *  	     .setButtonText("Просмотреть")
+			 *  	     .onClick(async () => {
+			 *  		     new DevicesModal(this.app, this.plugin).open()
+			 *  	     })
+			 *       );
 			*/
 
-			const all = Number(this.user.data.space)
-			const used = await this.plugin.manager.getSize()
+			const all = Number(this.user.data.space);
+			const used = await this.plugin.manager.getSize();
 			new Setting(container)
 				.setHeading()
 				.setName(`Использование: ${humanFileSize(used)}/${humanFileSize(all)}`);
 
-			const progressBarContainer = container.createEl("div", {cls: "space-progress-bar",});
-			progressBarContainer.createEl("div", {cls: ""}).setCssStyles({width: `${used/all*100}%`});
+			const progressBarContainer = container.createEl("div", { cls: "space-progress-bar" });
+			progressBarContainer
+				.createEl("div", { cls: "" })
+				.setCssStyles({ width: `${used/all*100}%` });
 		}
 		
 		new Setting(container)
 			.setHeading()
 			.setName("Взаимодействие с сервером");
 
-		if(this.plugin.settings.vaultid !== 0) {
+		if (this.plugin.settings.vaultid !== 0) {
 			new Setting(container)
 			.setName("Запустить KSync")
 			.setDesc("Запустить процесс синхронизации между клиентом и сервером")
@@ -153,7 +154,7 @@ export class SampleSettingTab extends PluginSettingTab {
 		this.loggerWindow = new LogWindow(container, this.logger);
 		
 		new Setting(container)
-		.setHeading()
-		.setName("© KSync 2024 | Разработчик: Абрамов Егор")
+			.setHeading()
+			.setName("© KSync 2024 | Разработчик: Абрамов Егор");
 	}
 }
