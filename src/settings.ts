@@ -1,8 +1,10 @@
 import { LogWindow } from "@ksync/log";
 import KSyncPlugin from "@ksync/main";
-import possiblyHost from "@ksync/util/possiblyHost";
-import { Logger } from "@ksync/util/Logger";
-import { humanFileSize } from "@ksync/util/FileUtil";
+import { 
+	Logger,
+	humanFileSize,
+	possiblyHost
+} from "@ksync/util";
 import { LoginModal } from "@ksync/modals/login";
 import { DevicesModal } from "@ksync/modals/devices";
 import { VaultsModal } from "@ksync/modals/vaults";
