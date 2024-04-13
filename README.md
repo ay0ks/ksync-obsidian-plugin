@@ -2,7 +2,7 @@
 
 <p align="center"><img src="https://i.imgur.com/eao3ahY.jpeg"></p>
 
-The world's first self-hosted sync plugin for Obsidian.
+The world's first self-hosted synchronization plugin for Obsidian.
 
 ENG | [RU](https://github.com/kuraysdev/ksync-obsidian-plugin/blob/master/README_ru.md)
 
@@ -10,7 +10,7 @@ ENG | [RU](https://github.com/kuraysdev/ksync-obsidian-plugin/blob/master/README
 
 - Authorization system
 - Subscription system
-- Support for selecting vaults for synchronization
+- Selecting different vaults to synchronize
 - Basic support for self-hosted servers
 - Mobile support (tested on iOS & Android)
 
