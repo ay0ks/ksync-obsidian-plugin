@@ -1,7 +1,12 @@
+import KSyncPlugin from "@ksync/main";
+import { hash } from "@ksync/util";
 import axios from "axios";
-import { Notice, TAbstractFile, TFolder, Vault } from "obsidian"
-import KSyncPlugin from "src/main";
-import { hash } from "src/util/FileUtil";
+import { 
+	Notice, 
+	TAbstractFile, 
+	TFolder, 
+	Vault 
+} from "obsidian";
 
 export class VaultService {
     public tempBasePath = '.ksync';
