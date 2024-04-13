@@ -1,5 +1,5 @@
-import KSyncPlugin from "src/main";
-import { WarningModal } from "src/modals/warning";
+import KSyncPlugin from "@ksync/main";
+import { WarningModal } from "@ksync/modals";
 
 export class Account {
     public plugin: KSyncPlugin;
